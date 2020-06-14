@@ -47,10 +47,11 @@
 				<p class="text_small text_white"> {{headers.fileName || "Load video file"}}</p>
 				<p class="text_small text_white link"> Settings</p>
 			</div>
+			{{chat}}
 			<!-- content -->
 			<div class="content">
 				<div class="video-container">
-					<video type="video/mp4" :src="`http://${serverAddress}:${headers.serverPort}/${fileURL}`" id="videoPlayer" controls poster="" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
+					<video type="video/mp4" :src="`http://${urlParams.host}/${fileURL}`" id="videoPlayer" controls poster="" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
 				</div>
 			</div>
 		</div>
@@ -60,23 +61,21 @@
 				el: "#clientApp",
 				data() {
 					return {
+						chat: [],
 						videoPlayer: null,
 						fileURL: null,
 						headers: {},
 						socket: {},
-						serverAddress: location.hostname,
+						urlParams: urlBreak(),
 					};
 				},
 				mounted() {
 					this.videoPlayer = document.getElementById("videoPlayer");
-					this.headers = {};
-					this.fileURL = this.headers.fileURL;
 					setInterval(() => {
 						if (!this.socket.readyState || this.socket.readyState !== 1) {
-							console.log("websocket is closed! opening ....", this.serverAddress, this.headers);
-							this.socket = new WebSocket(`ws://${this.serverAddress}:${this.headers.socketPort}`);
-
-							this.socket.send(JSON.stringify({ about: "initMe" }));
+							console.log("websocket is closed! opening ....");
+							this.socket = new WebSocket(`ws://${this.urlParams.hostname}:${this.urlParams.query.s}`);
+							this.socket.onopen = (e) => this.socket.send(JSON.stringify({ about: "initMe" }));
 							this.socket.onmessage = (e) => this.socketMSG(e);
 						}
 					}, 3000);
@@ -98,8 +97,11 @@
 					},
 					socketMSG(socketData) {
 						var e = JSON.parse(socketData.data);
+						console.log(e);
 						if (e.about == "initMe") {
-							e.msg = headers;
+							this.headers = e.msg;
+							this.fileURL = e.msg.fileURL;
+							this.chat = e.msg.chat;
 						} else if (e.about == "player") {
 							if (e.msg == "tick") {
 								if (this.videoPlayer.paused) this.videoPlayer.currentTime = e.currentTime;
@@ -119,10 +121,24 @@
 								this.videoPlayer.currentTime = e.currentTime;
 								this.videoPlayer.pause();
 							}
+						} else if (e.about == "chat") {
+							this.chat.push(e.msg);
 						}
 					},
 				},
 			});
+
+			// ----- helpers -----
+			function urlBreak() {
+				var url = {};
+				url.hostname = location.hostname;
+				url.host = location.host;
+				var q = location.search.substring(1);
+				if (!q) return url;
+
+				url.query = JSON.parse('{"' + decodeURI(q).replace(/"/g, '\\"').replace(/&/g, '","').replace(/=/g, '":"') + '"}');
+				return url;
+			}
 		</script>
 	</body>
 </html>

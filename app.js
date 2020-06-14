@@ -47,21 +47,19 @@ app.whenReady().then(() => {
 
 	ipcMain.on("init", (e, args) => {
 		localStorage = args;
-
+ 
 		// ------------------ web socket ----------------------
 		webContent.ws = new WebSocketServer({ port: localStorage.socketPort }).on("connection", (ws) => {
 			ws.onmessage = (e) => {
 				var data = JSON.parse(e.data);
-				if ((data.about = "initMe")) { 
-					ws.send(JSON.stringify({ msg: localStorage, about: "initMe" }));
-				} else {
+				
 					var spectators = webContent.ws.clients.size - 1;
 					webContent.ws.clients.forEach((client) => {
 						if (client !== ws) {
 							client.send(JSON.stringify({ ...data, spectators }));
 						}
-					});
-				}
+					}); 
+				
 			};
 		});
 
@@ -77,11 +75,10 @@ app.whenReady().then(() => {
 		// ------------------ web server ----------------------
 		http.createServer(serverDo).listen(localStorage.serverPort);
 		function serverDo(req, res) {
-			var url = req.url.split("?");
-
-			if (url[0] === "/") {
-				// console.log(url, url[1]);
-				if ((!localStorage.password && !url[1]) || url[1] == `p=${localStorage.password}`) {
+			var url = urlBreak(req.url);
+			// console.log(url);
+			if (url.path === "/") {
+				if (url.query.p == localStorage.password) {
 					req.url = "/user.html";
 				} else {
 					res.writeHead(404);
@@ -104,11 +101,12 @@ app.whenReady().then(() => {
 	});
 });
 
+/** --------------- helpers ---------------- */
+//
 // ---------------- video file to stream --------------------
 function fileStream(req, res, filePath) {
 	var range = req.headers.range;
-	if (!range) return res.sendStatus(416);
-
+	if (!range) return;
 	var positions = range.replace(/bytes=/, "").split("-");
 	var start = parseInt(positions[0], 10);
 
@@ -134,6 +132,21 @@ function fileStream(req, res, filePath) {
 			console.log(err);
 			res.end(err);
 		});
+}
+
+/** ----- query params ------ */
+function urlBreak(reqURL) {
+	var q = reqURL.split("?");
+	var url = {};
+	url.path = q[0];
+
+	if (!q[1]) return url;
+	url.query = {};
+	q[1].split("&").forEach((e) => {
+		e = e.split("=");
+		url.query[e[0]] = e[1];
+	});
+	return url;
 }
 
 // console.log(global.localStorage);

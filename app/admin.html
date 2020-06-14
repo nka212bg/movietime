@@ -356,7 +356,7 @@
 										delete this.appInfo.fileName;
 										delete this.appInfo.videoProgress;
 									}
-									delete this.appInfo.playlist[e];
+									delete this.appInfo.playlist[e.fileName];
 								}
 							});
 							this.playlist = this.appInfo.playlist;
@@ -366,14 +366,39 @@
 								this.videoPlayer.currentTime = this.appInfo.videoProgress;
 							}
 
-							setInterval(this.tick, 3000);
+							setInterval(this.tick, 2000);
 							this.updateLocalStorage();
 							this.subManager();
 							electron.ipcRenderer.send("init", this.appInfo);
-							console.log(this.appInfo);
+							// console.log(this.appInfo);
 						});
 				},
 				methods: {
+					socketMSG(socketData) {
+						var e = JSON.parse(socketData.data);
+						console.log(e);
+						this.spectators = e.spectators;
+						if (e.about == "initMe") {
+							this.socket.send(JSON.stringify({ msg: { ...this.appInfo, chat: this.chat }, about: "initMe" }));
+						} else if (e.about == "player") {
+							if (e.msg == "play") {
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.play();
+							}
+							if (e.msg == "pause") {
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.pause();
+							}
+						} else if (e.about == "chat") {
+							this.chat.push(e.msg);
+						}
+					},
+
+					tick() {
+						if (this.socket.readyState) {
+							this.socket.send(JSON.stringify({ msg: "tick", about: "player", currentTime: this.videoPlayer.currentTime, isPlaying: !this.videoPlayer.paused }));
+						}
+					},
 					sendChatPost(el) {
 						el = document.getElementById(el);
 						if (el.value.trim() === "") return;
@@ -493,26 +518,7 @@
 							this.loadVideo();
 						}
 					},
-					socketMSG(socketData) {
-						var e = JSON.parse(socketData.data);
-						console.log(e);
-						this.spectators = e.spectators;
-						if (e.about == "player") {
-							if (e.msg == "play") {
-								this.videoPlayer.currentTime = e.currentTime;
-								this.videoPlayer.play();
-							}
-							if (e.msg == "pause") {
-								this.videoPlayer.currentTime = e.currentTime;
-								this.videoPlayer.pause();
-							}
-						}
-					},
 
-					// --------------------------
-					tick() {
-						if (this.socket.readyState) this.socket.send(JSON.stringify({ msg: "tick", about: "player", currentTime: this.videoPlayer.currentTime, isPlaying: !this.videoPlayer.paused }));
-					},
 					loadVideo() {
 						// this.videoPlayer.pause();
 						const q = document.createElement("INPUT");
@@ -522,19 +528,23 @@
 							var file = q.files[0];
 							q.remove();
 							// console.log(file);
+							var renamedFilePath = file.path;
 
-							var fileExtension = file.path.split(".").pop();
+							// TODO - rename the file
+							// fs.renameSync(file.path, renamedFilePath);
+
+							var fileExtension = renamedFilePath.split(".").pop();
 							if (["avi", "mkv"].includes(fileExtension)) {
 								const { sep } = require("path");
 								const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
 								const ffmpeg = require("fluent-ffmpeg");
 								ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 								// var tempPath = process.env.TEMP + sep + file.name + ".mp4";
-								var tempPath = file.path + ".mTime_convert.mp4";
+								var tempPath = renamedFilePath + ".mTime_convert.mp4";
 
 								if (fs.existsSync(tempPath)) return this.playerPlay({ fileURL: tempPath, fileName: file.name }, { isNew: true });
 
-								ffmpeg(file.path)
+								ffmpeg(renamedFilePath)
 									// .videoCodec("libx264")
 									// .audioCodec("libmp3lame")
 									.on("error", (err) => {
@@ -558,7 +568,7 @@
 									.save(`${tempPath}`);
 								return;
 							} else if (fileExtension === "mp4") {
-								this.playerPlay({ fileURL: file.path, fileName: file.name }, { isNew: true });
+								this.playerPlay({ fileURL: renamedFilePath, fileName: file.name }, { isNew: true });
 							} else {
 								return alert("Unsuported format");
 							}
