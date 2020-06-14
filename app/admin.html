@@ -230,11 +230,14 @@
 						</div>
 					</div>
 
-					<p class="no_drag">
-						<span class="text_white link hover_active mr-1" @click="minimizeWindow()"></span>
-						<span class="text_white link hover_active mr-1" @click="maximizeWindow()"></span>
-						<span class="text_white link hover_active" @click="closeWindow()"></span>
-					</p>
+					<div class="flex_wrap no_drag">
+						<p class="text_white text_small link ph-1" @click="copyShareLink()"> Copy share link</p>
+						<p>
+							<span class="text_white link hover_active mr-1" @click="minimizeWindow()"></span>
+							<span class="text_white link hover_active mr-1" @click="maximizeWindow()"></span>
+							<span class="text_white link hover_active" @click="closeWindow()"></span>
+						</p>
+					</div>
 				</div>
 			</div>
 			<!-- content -->
@@ -242,7 +245,7 @@
 				<div class="video-container">
 					<video type="video/mp4" src="" id="videoPlayer" controls poster="" @click="playerClick()" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
 
-					<div class="flex_center_horizontal">
+					<div v-if="subtitles" class="flex_center_horizontal">
 						<div class="subtitles text_white text_bold text_big text_center inline_block">{{subtitles}}</div>
 					</div>
 				</div>
@@ -257,10 +260,11 @@
 					<div class="menu_container text_small">
 						<!-- ------ settings ------- -->
 						<div v-if="menu == 'settings'" class="settings">
-							<p class="text_white link background_info p-1 mv-1" @click="copyShareLink()"> Copy share link</p>
+							<!-- <p class="text_white link background_info p-1 mv-1" @click="copyShareLink()"> Copy share link</p> -->
 
-							<div class="flex_right_horizontal">
+							<div class="flex_space_between">
 								<img :src="`img/avatars/${appInfo.avatar}.jpg`" class="avatar_img link" @click="changeSettings('avatar')" />
+								<p @click="changeSettings('password')" class="text_white link">Clear all sessions <span class="text_white" title="Restrict the stream session (recomended)"></span></p>
 							</div>
 
 							<div class="text_white pb-05 flex_space_between flex_center_vertical">
@@ -268,11 +272,8 @@
 								<input type="text" class="p-05" :value="appInfo.username" @blur="changeSettings('username')" />
 							</div>
 
-							<div class="text_white flex_space_between flex_center_vertical">
-								<p class="text_white pr-1">Token <span class="text_white" title="Restrict the stream session (recomended)"></span></p>
-								<input type="text" class="p-05" :value="appInfo.password" @blur="changeSettings('password')" />
-							</div>
 							<hr class="mv-1" />
+
 							<div class="text_white pb-05 flex_space_between flex_center_vertical">
 								<p class="text_white pr-1">Ports <span class="text_white" title="You have to do port-forwarding to this two ports at your router"></span></p>
 								<div class="flex_space_between" style="width: 59%;">
@@ -324,7 +325,7 @@
 				data() {
 					return {
 						chat: [],
-						menu: "chat",
+						menu: "settings",
 						appInfo: {},
 						serverURL: "",
 						socket: {},
@@ -419,29 +420,67 @@
 					},
 
 					subManager() {
-						return; // disabled
-						var sub = fs.readFileSync(this.playlist[this.appInfo.fileName].sub, "UTF-8").split("\n\r");
+						if (!fs.existsSync(this.playlist[this.appInfo.fileName].sub)) return;
+						var sub = fs.readFileSync(this.playlist[this.appInfo.fileName].sub, "UTF-8").split(/\n\n|\n\r/g);
 						var temp = {};
 						sub.forEach((e) => {
 							e = e.split("\n");
 							if (e[0] == "") e.splice(0, 1);
-							e.forEach((q, index) => {
-								if (index == 2) {
-									var w = JSON.parse(JSON.stringify(e));
-									// console.log(w);
-									temp[e[1]] = w.splice(0, 2).join("\n");
-									// ---------------------------------------------------------------------------
-								}
-							});
+							e.shift();
+							// title and start time
+							var tst = timeHelper(e[0]);
+							if (!tst) return;
+							e.shift();
+							temp[tst.start] = {};
+							temp[tst.start].end = tst.end;
+							temp[tst.start].text = e.join(" ");
 						});
-						// console.log(temp);
+						console.log(temp);
+
+						var subKeys = Object.keys(temp);
+						var deltaTime = null;
+						setInterval(() => {
+							var videoTime = Math.round(this.videoPlayer.currentTime * 1000);
+							var closest = subKeys.reduce(function (prev, curr) {
+								return Number(Math.abs(curr - videoTime) < Math.abs(prev - videoTime) ? curr : prev);
+							});
+
+							if (deltaTime !== closest) {
+								deltaTime = closest;
+								this.subtitles = temp[closest].text;
+								setTimeout(() => {
+									this.subtitles = null;
+								}, temp[closest].end);
+							}
+						}, 500);
+
+						function timeHelper(time) {
+							if (!time) return;
+							time = time.split(" --> ");
+							var start = arrToMS(time[0].split(/:|,/g));
+							var end = arrToMS(time[1].split(/:|,/g));
+							function arrToMS(arr) {
+								var ms = 0;
+								if (arr[0] !== "00") ms += Number(arr[0]) * 1000 * 60 * 60;
+								if (arr[1] !== "00") ms += Number(arr[1]) * 1000 * 60;
+								if (arr[2] !== "00") ms += Number(arr[2]) * 1000;
+								if (arr[3] !== "00") ms += Number(arr[3]);
+								return ms;
+							}
+							return {
+								start,
+								end,
+							};
+						}
 					},
 					changeSettings(about) {
 						if (about == "username") {
-							this.appInfo[about] = event.target.value.replace(/[^A-Za-z0-9 ]/g, "");
+							this.appInfo[about] = event.target.value.replace(/[^A-Za-z0-9 ]/g, " ");
 						} else if (about == "avatar") {
 							this.appInfo[about] = Number(this.appInfo[about]);
 							this.appInfo[about] < 7 ? this.appInfo[about]++ : (this.appInfo[about] = 1);
+						} else if (about == "password") {
+							this.appInfo[about] = Date.now();
 						} else {
 							this.appInfo[about] = event.target.value.replace(/ /g, "_");
 						}
@@ -458,6 +497,7 @@
 							listItem.sub = file.path;
 							this.appInfo.playlist[listItem.fileName] = listItem;
 							this.updateLocalStorage();
+							this.subManager();
 						};
 					},
 					deleteFromPlaylist(listItem) {
@@ -495,6 +535,7 @@
 							if (isNew && (!this.appInfo.playlist || !this.appInfo.playlist[listItem.fileName])) {
 								this.addToPlaylist(listItem);
 							}
+							this.subManager();
 							this.updateLocalStorage();
 						}
 						if (!autoPlay) return;

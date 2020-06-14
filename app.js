@@ -23,12 +23,12 @@ function createWindow() {
 		frame: false,
 		backgroundColor: "#3a3a44",
 		webPreferences: {
-			nodeIntegration: true,
+			nodeIntegration: true, 
 			preload: appRoot + "/script/preload.js",
 		},
-	});
-	winState.manage(mainWindow);
-	mainWindow.loadFile("app/admin.html");
+	});  
+	winState.manage(mainWindow); 
+	mainWindow.loadFile("app/admin.html"); 
 	global.webContent = mainWindow.webContents;
 	webContent.openDevTools();
 }
@@ -47,19 +47,17 @@ app.whenReady().then(() => {
 
 	ipcMain.on("init", (e, args) => {
 		localStorage = args;
- 
+
 		// ------------------ web socket ----------------------
 		webContent.ws = new WebSocketServer({ port: localStorage.socketPort }).on("connection", (ws) => {
 			ws.onmessage = (e) => {
 				var data = JSON.parse(e.data);
-				
-					var spectators = webContent.ws.clients.size - 1;
-					webContent.ws.clients.forEach((client) => {
-						if (client !== ws) {
-							client.send(JSON.stringify({ ...data, spectators }));
-						}
-					}); 
-				
+				var spectators = webContent.ws.clients.size - 1;
+				webContent.ws.clients.forEach((client) => {
+					if (client !== ws) {
+						client.send(JSON.stringify({ ...data, spectators }));
+					}
+				});
 			};
 		});
 
