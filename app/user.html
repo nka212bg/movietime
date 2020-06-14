@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<script src="script/vue.min.js"></script>
+		<link href="style/style.css" rel="stylesheet" />
+		<title>📺 Movie Time</title>
+
+		<style>
+			body {
+				overflow-x: hidden !important;
+				overflow-y: hidden !important;
+				background-color: #3a3a44;
+			}
+
+			.content {
+				width: 100%;
+				height: 100vh;
+				position: relative;
+				overflow: hidden;
+				/* overflow: scroll; */
+			}
+
+			.video-container {
+				position: absolute;
+				width: 100%;
+				background: black;
+				top: 0;
+				left: 0;
+				bottom: 107px;
+				overflow: hidden;
+			}
+
+			#videoPlayer {
+				height: 100%;
+				width: 100%;
+				outline: none;
+				border: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="clientApp">
+			<!-- header -->
+			<div class="pv-1 ph-1 flex_center_vertical flex_space_between">
+				<p class="text_small text_white"> {{headers.fileName || "Load video file"}}</p>
+				<p class="text_small text_white link"> Settings</p>
+			</div>
+			<!-- content -->
+			<div class="content">
+				<div class="video-container">
+					<video type="video/mp4" :src="`http://${serverAddress}:${headers.serverPort}/${fileURL}`" id="videoPlayer" controls poster="" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			new Vue({
+				el: "#clientApp",
+				data() {
+					return {
+						videoPlayer: null,
+						fileURL: null,
+						headers: {},
+						socket: {},
+						serverAddress: location.hostname,
+					};
+				},
+				mounted() {
+					this.videoPlayer = document.getElementById("videoPlayer");
+					this.headers = {};
+					this.fileURL = this.headers.fileURL;
+					setInterval(() => {
+						if (!this.socket.readyState || this.socket.readyState !== 1) {
+							console.log("websocket is closed! opening ....", this.serverAddress, this.headers);
+							this.socket = new WebSocket(`ws://${this.serverAddress}:${this.headers.socketPort}`);
+
+							this.socket.send(JSON.stringify({ about: "initMe" }));
+							this.socket.onmessage = (e) => this.socketMSG(e);
+						}
+					}, 3000);
+				},
+				methods: {
+					playerPlay() {
+						clearTimeout(window.playerPlay);
+						window.playerPlay = setTimeout(() => {
+							this.videoPlayer.play();
+							this.socket.send(JSON.stringify({ msg: "play", about: "player", currentTime: this.videoPlayer.currentTime }));
+						}, 100);
+					},
+					playerPause() {
+						clearTimeout(window.playerPlay);
+						window.playerPlay = setTimeout(() => {
+							this.videoPlayer.pause();
+							this.socket.send(JSON.stringify({ msg: "pause", about: "player", currentTime: this.videoPlayer.currentTime }));
+						}, 100);
+					},
+					socketMSG(socketData) {
+						var e = JSON.parse(socketData.data);
+						if (e.about == "initMe") {
+							e.msg = headers;
+						} else if (e.about == "player") {
+							if (e.msg == "tick") {
+								if (this.videoPlayer.paused) this.videoPlayer.currentTime = e.currentTime;
+							}
+							if (e.msg == "play") {
+								if (e.fileURL && e.fileURL !== this.fileURL) {
+									location.reload();
+									// this.headers = this.getHeaders();
+									// console.log(e);
+									// this.fileURL = e.fileURL;
+									// this.headers.fileName = e.fileName;
+								}
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.play();
+							}
+							if (e.msg == "pause") {
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.pause();
+							}
+						}
+					},
+				},
+			});
+		</script>
+	</body>
+</html>

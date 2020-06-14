@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<!-- <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'" /> -->
+		<meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'" />
+		<!-- <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://platform.linkedin.com "> -->
+		<script src="script/vue.min.js"></script>
+		<link href="style/style.css" rel="stylesheet" />
+		<title>Movie Time</title>
+		<style>
+			body {
+				overflow-x: hidden !important;
+				overflow-y: hidden !important;
+			}
+
+			.drag {
+				-webkit-app-region: drag;
+				/* cursor: move; */
+			}
+
+			.no_drag {
+				-webkit-app-region: no-drag;
+			}
+
+			#header {
+				position: relative;
+				z-index: 1;
+				background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+				background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+				background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00ffffff',GradientType=0 );
+			}
+
+			.progress_bar {
+				position: relative;
+				margin: 11px 20px;
+				margin-right: 10px;
+				width: 200px;
+				height: 6px;
+				background: rgba(33, 33, 33, 0.67);
+				box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+				border-radius: 100px;
+			}
+
+			.progress_bar div {
+				height: 100%;
+				background: #56ff00;
+				border-radius: 100px;
+			}
+
+			.content {
+				width: 100%;
+				height: 100vh;
+				position: relative;
+				overflow: hidden;
+
+				/* overflow: scroll; */
+			}
+
+			.video-container {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+				background: black;
+				top: 0;
+				left: 0;
+				bottom: 107px;
+				overflow: hidden;
+			}
+
+			#videoPlayer {
+				position: fixed;
+				height: 100%;
+				width: 100%;
+				top: 0;
+				outline: none;
+				border: none;
+				object-fit: cover;
+			}
+
+			.video-container .subtitles {
+				position: fixed;
+				max-width: 800px;
+				padding: 10px 20px;
+				bottom: 77px;
+				line-height: 50px;
+				background: rgba(0, 0, 0, 0.6);
+			}
+
+			#menu {
+				position: fixed;
+				width: 100%;
+				max-width: 350px;
+				top: 80px;
+				bottom: 80px;
+				left: 10px;
+				background: rgba(0, 0, 0, 0.8);
+				border-radius: 10px;
+			}
+
+			#menu .menu_tabs {
+				border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+			}
+
+			#menu .menu_tabs .active {
+				border-bottom: 1px solid white;
+			}
+
+			#menu .menu_container {
+				position: absolute;
+				overflow: auto;
+				width: 100%;
+				right: 0px;
+				top: 40px;
+				bottom: 0;
+				padding: 10px;
+			}
+
+			#menu .menu_container .playlist p {
+				/* padding: 5px 3px; */
+				overflow: hidden;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+
+			#menu .menu_footer {
+				position: absolute;
+				bottom: 0;
+				border-top: 1px solid rgba(255, 255, 255, 0.15);
+				width: 92%;
+			}
+
+			#menu .close_button {
+				position: absolute;
+				right: -30px;
+				background: rgba(0, 0, 0, 0.8);
+				box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.8);
+				border-radius: 1px;
+			}
+
+			.avatar_img {
+				width: 80px;
+				height: 80px;
+				margin-bottom: 20px;
+				object-fit: cover;
+			}
+
+			hr {
+				border-top: none;
+				border-left: 5px solid rgba(0, 0, 0, 0);
+				border-right: 5px solid rgba(0, 0, 0, 0);
+				border-bottom: 1px solid rgba(132, 132, 132, 0.3);
+			}
+
+			#menu .chat {
+				position: relative;
+				height: 100%;
+			}
+
+			#menu .chat .chat_list {
+				position: absolute;
+				overflow-x: hidden;
+				overflow-y: auto;
+				width: 100%;
+				top: 0;
+				bottom: 70px;
+				padding: 10px;
+				border-bottom-left-radius: 5px;
+				border-bottom-right-radius: 5px;
+			}
+
+			#menu .chat .chat_item {
+				display: flex;
+				padding-top: 10px;
+				padding-bottom: 10px;
+				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			}
+
+			#menu .chat .chat_item.me {
+				flex-direction: row-reverse;
+				text-align: right;
+			}
+
+			#menu .chat .chat_item img {
+				margin: 10px;
+				width: 40px;
+				height: 40px;
+				object-fit: cover;
+				border-radius: 5px;
+			}
+
+			#menu .chat .chat_item .text_content {
+				margin-top: 13px;
+			}
+
+			#menu .chat .chat_input {
+				position: absolute;
+				bottom: 0;
+				width: 100%;
+				height: 60px;
+				background: rgba(255, 255, 255, 0.11);
+				border: none;
+				outline: none;
+				color: white;
+				padding: 4px 8px;
+				resize: none;
+				border-radius: 5px;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body class="noselect">
+		<div id="serverApp">
+			<div id="header" class="pb-1">
+				<!-- title bar -->
+				<div class="pv-05 ph-05 flex_center_vertical flex_space_between drag">
+					<div class="flex_wrap">
+						<p class="no_drag">
+							<span class="text_white link hover_active ml-1" @click="menuSelect('settings')" title="settings"></span>
+							<span class="text_white link hover_active ml-1" @click="menuSelect('playlist')" title="playlist"></span>
+							<span class="text_white link hover_active ml-1" @click="menuSelect('chat')" title="chat"></span>
+							<span class="text_white ml-1 text_small text_gray" :title="`${spectators} spectators`"> {{spectators}}</span>
+						</p>
+						<div class="flex_wrap" v-if="uploadProgress && uploadProgress < 100">
+							<div class="progress_bar drag">
+								<div :style="`width:${uploadProgress}%`"></div>
+							</div>
+							<p class="text_white">{{uploadProgress}}%</p>
+						</div>
+					</div>
+
+					<p class="no_drag">
+						<span class="text_white link hover_active mr-1" @click="minimizeWindow()"></span>
+						<span class="text_white link hover_active mr-1" @click="maximizeWindow()"></span>
+						<span class="text_white link hover_active" @click="closeWindow()"></span>
+					</p>
+				</div>
+			</div>
+			<!-- content -->
+			<div class="content">
+				<div class="video-container">
+					<video type="video/mp4" src="" id="videoPlayer" controls poster="" @click="playerClick()" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
+
+					<div class="flex_center_horizontal">
+						<div class="subtitles text_white text_bold text_big text_center inline_block">{{subtitles}}</div>
+					</div>
+				</div>
+
+				<div id="menu" v-if="menu" class="ph-05 pv-05">
+					<div class="close_button text_white link hover_active" @click="menuSelect(false)"></div>
+					<div class="menu_tabs text_small flex_space_between mb-1">
+						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'settings' ? 'active' : ''}`" @click="menuSelect('settings')"> settings</p>
+						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'playlist' ? 'active' : ''}`" @click="menuSelect('playlist')"> playlist</p>
+						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'chat' ? 'active' : ''}`" @click="menuSelect('chat')"> chat</p>
+					</div>
+					<div class="menu_container text_small">
+						<!-- ------ settings ------- -->
+						<div v-if="menu == 'settings'" class="settings">
+							<p class="text_white link background_info p-1 mv-1" @click="copyShareLink()"> Copy share link</p>
+
+							<div class="flex_right_horizontal">
+								<img :src="`img/avatars/${appInfo.avatar}.jpg`" class="avatar_img link" @click="changeSettings('avatar')" />
+							</div>
+
+							<div class="text_white pb-05 flex_space_between flex_center_vertical">
+								<p class="text_white pr-1">User name</p>
+								<input type="text" class="p-05" :value="appInfo.username" @blur="changeSettings('username')" />
+							</div>
+
+							<div class="text_white flex_space_between flex_center_vertical">
+								<p class="text_white pr-1">Token <span class="text_white" title="Restrict the stream session (recomended)"></span></p>
+								<input type="text" class="p-05" :value="appInfo.password" @blur="changeSettings('password')" />
+							</div>
+							<hr class="mv-1" />
+							<div class="text_white pb-05 flex_space_between flex_center_vertical">
+								<p class="text_white pr-1">Ports <span class="text_white" title="You have to do port-forwarding to this two ports at your router"></span></p>
+								<div class="flex_space_between" style="width: 59%;">
+									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.serverPort" @blur="changeSettings('serverPort')" />
+									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.socketPort" @blur="changeSettings('socketPort')" />
+								</div>
+							</div>
+						</div>
+
+						<!-- ------ playlist ------- -->
+						<div v-if="menu == 'playlist'" class="playlist">
+							<p class="text_white link background_info p-1 mv-1" @click="loadVideo()"> load video</p>
+							<p v-for="(value, index) in playlist" class="pb-05" :key="index">
+								<span class="text_danger link hover_active" title="delete from playlist" @click="deleteFromPlaylist(value)"></span>
+								<span class="text_gray link hover_active" :style="`${value.sub ? 'color: #79fd00 !important;' : ''}`" title="add subtitles" @click="addSubtitles(value)"></span>
+								<span class="text_white link hover_active" :style="`${value.fileName === appInfo.fileName ? 'color: #79fd00 !important;' : ''}`" @click="playerPlay(value)">{{value.fileName}}</span>
+							</p>
+						</div>
+
+						<!-- ------ chat ------- -->
+						<div v-if="menu == 'chat'" class="chat">
+							<div class="chat_list">
+								<div :class="`chat_item text_white ${ appInfo.username == value.user.split('_')[0] ? 'me' : ''}`" v-for="(value, index) in chat" :key="index">
+									<img :src="`img/avatars/${value.user.split('_')[1]}.jpg`" class="avatar_img" />
+									<div class="text_content">
+										<p class="text_small text_white">{{value.user.split('_')[0]}}</p>
+										<p class="text_white" v-html="value.post"></p>
+									</div>
+								</div>
+							</div>
+							<div>
+								<textarea class="chat_input" id="chat_input" placeholder="text ..." @keyup.enter="sendChatPost('chat_input')"></textarea>
+								<i class="icon link" style="position: absolute; bottom: 5px; right: 33px; border-left: 2px solid #656565; padding-left: 7px;" @click="playerClass.emojiBox('chat_input')">😄</i>
+								<i class="icon link text_white" style="position: absolute; bottom: 7px; right: 7px;" @click="sendChatPost('chat_input')"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<script src="script/script.js"></script>
+		<script>
+			const electron = require("electron");
+			var webContent = electron.remote.getGlobal("webContent");
+			const fs = require("fs");
+
+			new Vue({
+				el: "#serverApp",
+				data() {
+					return {
+						chat: [],
+						menu: "chat",
+						appInfo: {},
+						serverURL: "",
+						socket: {},
+						videoPlayer: null,
+						uploadProgress: null,
+						playlist: {},
+						spectators: 0,
+						subtitles: null,
+					};
+				},
+				mounted() {
+					this.videoPlayer = document.getElementById("videoPlayer");
+					fetch("https://api.myip.com/")
+						.then((e) => e.json())
+						.then((e) => {
+							this.appInfo = JSON.parse(JSON.stringify(localStorage));
+							this.appInfo.serverIp = e.ip;
+							this.socket = new WebSocket(`ws://${e.ip || this.appInfo.serverIp}:${this.appInfo.socketPort}`);
+							this.socket.onmessage = (e) => this.socketMSG(e);
+
+							this.appInfo.playlist = this.appInfo.playlist ? JSON.parse(this.appInfo.playlist) : {};
+
+							Object.keys(this.appInfo.playlist).forEach((e, index) => {
+								e = this.appInfo.playlist[e];
+								// console.log(e);
+								if (!fs.existsSync(e.fileURL)) {
+									if (e.fileURL == this.appInfo.fileURL) {
+										delete this.appInfo.fileURL;
+										delete this.appInfo.fileName;
+										delete this.appInfo.videoProgress;
+									}
+									delete this.appInfo.playlist[e];
+								}
+							});
+							this.playlist = this.appInfo.playlist;
+
+							if (this.appInfo.fileURL) {
+								this.videoPlayer.src = this.appInfo.fileURL;
+								this.videoPlayer.currentTime = this.appInfo.videoProgress;
+							}
+
+							setInterval(this.tick, 3000);
+							this.updateLocalStorage();
+							this.subManager();
+							electron.ipcRenderer.send("init", this.appInfo);
+							console.log(this.appInfo);
+						});
+				},
+				methods: {
+					sendChatPost(el) {
+						el = document.getElementById(el);
+						if (el.value.trim() === "") return;
+						var post = el.value.trim().replace(/:\)/g, "<span class='text_big'>😃</span>").replace(/:\(/g, "<span class='text_big'>😥</span>").replace(/\n/g, "<br>");
+						var msg = { user: this.appInfo.username + "_" + this.appInfo.avatar, post };
+						this.chat.push(msg);
+						el.value = "";
+						el.focus();
+						console.log(document.querySelector(".chat_list").scrollHeight);
+						document.querySelector(".chat_list").scrollTop = document.querySelector(".chat_list").scrollHeight + 300;
+						this.socket.send(JSON.stringify({ about: "chat", msg }));
+					},
+					copyShareLink() {
+						playerClass.copyToClipboard(`http://${this.appInfo.serverIp}:${this.appInfo.serverPort}/?p=${this.appInfo.password}&s=${this.appInfo.socketPort}`);
+						var el = event.target;
+						el.classList.add("background_success");
+						setTimeout(() => el.classList.remove("background_success"), 1000);
+					},
+
+					subManager() {
+						return; // disabled
+						var sub = fs.readFileSync(this.playlist[this.appInfo.fileName].sub, "UTF-8").split("\n\r");
+						var temp = {};
+						sub.forEach((e) => {
+							e = e.split("\n");
+							if (e[0] == "") e.splice(0, 1);
+							e.forEach((q, index) => {
+								if (index == 2) {
+									var w = JSON.parse(JSON.stringify(e));
+									// console.log(w);
+									temp[e[1]] = w.splice(0, 2).join("\n");
+									// ---------------------------------------------------------------------------
+								}
+							});
+						});
+						// console.log(temp);
+					},
+					changeSettings(about) {
+						if (about == "username") {
+							this.appInfo[about] = event.target.value.replace(/[^A-Za-z0-9 ]/g, "");
+						} else if (about == "avatar") {
+							this.appInfo[about] = Number(this.appInfo[about]);
+							this.appInfo[about] < 7 ? this.appInfo[about]++ : (this.appInfo[about] = 1);
+						} else {
+							this.appInfo[about] = event.target.value.replace(/ /g, "_");
+						}
+						this.updateLocalStorage();
+						electron.ipcRenderer.send("changeSettings", this.appInfo);
+					},
+					addSubtitles(listItem) {
+						const q = document.createElement("INPUT");
+						q.type = "file";
+						q.title = "Load subtitles";
+						q.click();
+						q.onchange = () => {
+							var file = q.files[0];
+							listItem.sub = file.path;
+							this.appInfo.playlist[listItem.fileName] = listItem;
+							this.updateLocalStorage();
+						};
+					},
+					deleteFromPlaylist(listItem) {
+						delete this.appInfo.playlist[listItem.fileName];
+						event.target.parentElement.remove();
+						this.updateLocalStorage();
+					},
+					updateLocalStorage() {
+						Object.keys(this.appInfo).forEach((e) => {
+							localStorage[e] = typeof this.appInfo[e] === "object" ? JSON.stringify(this.appInfo[e]) : this.appInfo[e];
+						});
+						this.appInfo = JSON.parse(JSON.stringify(this.appInfo));
+					},
+					menuSelect(menuItem) {
+						this.menu = menuItem;
+					},
+					addToPlaylist(listItem) {
+						if (this.appInfo.playlist[listItem.fileName]) return;
+
+						this.appInfo.playlist[listItem.fileName] = { ...listItem };
+						this.playlist = this.appInfo.playlist;
+						this.updateLocalStorage();
+					},
+					playerPlay(listItem, { isNew = false, autoPlay = true } = {}) {
+						if (listItem) {
+							this.videoPlayer.currentTime = 0;
+							this.videoPlayer.src = listItem.fileURL;
+
+							this.appInfo.videoProgress = 0;
+							this.appInfo.fileName = listItem.fileName;
+							this.appInfo.fileURL = listItem.fileURL;
+							this.appInfo.fileName = listItem.fileName;
+							electron.ipcRenderer.send("loadVideo", { fileURL: listItem.fileURL, fileName: listItem.fileName });
+
+							if (isNew && (!this.appInfo.playlist || !this.appInfo.playlist[listItem.fileName])) {
+								this.addToPlaylist(listItem);
+							}
+							this.updateLocalStorage();
+						}
+						if (!autoPlay) return;
+						clearTimeout(window.playerPlay);
+						window.playerPlay = setTimeout(() => {
+							this.videoPlayer.play();
+							this.socket.send(JSON.stringify({ msg: "play", about: "player", currentTime: this.videoPlayer.currentTime, fileURL: this.appInfo.fileURL, fileName: this.appInfo.fileName }));
+						}, 100);
+					},
+					playerPause() {
+						clearTimeout(window.playerPlay);
+						window.playerPlay = setTimeout(() => {
+							this.videoPlayer.pause();
+							this.socket.send(JSON.stringify({ msg: "pause", about: "player", currentTime: this.videoPlayer.currentTime }));
+							this.appInfo.videoProgress = this.videoPlayer.currentTime;
+							this.updateLocalStorage();
+						}, 100);
+					},
+					playerClick() {
+						if (!this.appInfo.fileURL) {
+							this.loadVideo();
+						}
+					},
+					socketMSG(socketData) {
+						var e = JSON.parse(socketData.data);
+						console.log(e);
+						this.spectators = e.spectators;
+						if (e.about == "player") {
+							if (e.msg == "play") {
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.play();
+							}
+							if (e.msg == "pause") {
+								this.videoPlayer.currentTime = e.currentTime;
+								this.videoPlayer.pause();
+							}
+						}
+					},
+
+					// --------------------------
+					tick() {
+						if (this.socket.readyState) this.socket.send(JSON.stringify({ msg: "tick", about: "player", currentTime: this.videoPlayer.currentTime, isPlaying: !this.videoPlayer.paused }));
+					},
+					loadVideo() {
+						// this.videoPlayer.pause();
+						const q = document.createElement("INPUT");
+						q.type = "file";
+						q.click();
+						q.onchange = () => {
+							var file = q.files[0];
+							q.remove();
+							// console.log(file);
+
+							var fileExtension = file.path.split(".").pop();
+							if (["avi", "mkv"].includes(fileExtension)) {
+								const { sep } = require("path");
+								const ffmpegInstaller = require("@ffmpeg-installer/ffmpeg");
+								const ffmpeg = require("fluent-ffmpeg");
+								ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+								// var tempPath = process.env.TEMP + sep + file.name + ".mp4";
+								var tempPath = file.path + ".mTime_convert.mp4";
+
+								if (fs.existsSync(tempPath)) return this.playerPlay({ fileURL: tempPath, fileName: file.name }, { isNew: true });
+
+								ffmpeg(file.path)
+									// .videoCodec("libx264")
+									// .audioCodec("libmp3lame")
+									.on("error", (err) => {
+										return console.log(`ERROR ${err.message}, I don't know what to do now.... I'm out ! (～￣(OO)￣)`);
+									})
+									.on("progress", (progress) => {
+										this.uploadProgress = Math.round((progress.targetSize / (file.size / 1000)) * 100);
+									})
+									.on("end", () => {
+										console.log("Processing finished !");
+										this.uploadProgress = 100;
+										// this.playerPlay({ fileURL: tempPath, fileName: file.name }, { isNew: true, autoPlay: false });
+										this.addToPlaylist({ fileURL: tempPath, fileName: file.name });
+
+										// if (confirm("The file is converted. Do you want to play it now?")) {
+										// 	this.playerPlay({ fileURL: tempPath, fileName: file.name }, { isNew: true });
+										// } else {
+										// 	this.playerPlay({ fileURL: tempPath, fileName: file.name }, { isNew: true, autoPlay: false });
+										// }
+									})
+									.save(`${tempPath}`);
+								return;
+							} else if (fileExtension === "mp4") {
+								this.playerPlay({ fileURL: file.path, fileName: file.name }, { isNew: true });
+							} else {
+								return alert("Unsuported format");
+							}
+						};
+					},
+
+					// player app window controls
+					minimizeWindow() {
+						electron.remote.getCurrentWindow().minimize();
+					},
+					maximizeWindow() {
+						!electron.remote.getCurrentWindow().isMaximized() ? electron.remote.getCurrentWindow().maximize() : electron.remote.getCurrentWindow().unmaximize();
+					},
+					closeWindow() {
+						this.appInfo.videoProgress = this.videoPlayer.currentTime;
+						this.updateLocalStorage();
+						this.socket.close();
+						electron.remote.getCurrentWindow().close();
+					},
+				},
+			});
+		</script>
+	</body>
+</html>
