@@ -23,12 +23,12 @@ function createWindow() {
 		frame: false,
 		backgroundColor: "#3a3a44",
 		webPreferences: {
-			nodeIntegration: true, 
+			nodeIntegration: true,
 			preload: appRoot + "/script/preload.js",
 		},
-	});  
-	winState.manage(mainWindow); 
-	mainWindow.loadFile("app/admin.html"); 
+	});
+	winState.manage(mainWindow);
+	mainWindow.loadFile("app/admin.html");
 	global.webContent = mainWindow.webContents;
 	webContent.openDevTools();
 }

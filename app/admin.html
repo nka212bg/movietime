@@ -8,207 +8,6 @@
 		<script src="script/vue.min.js"></script>
 		<link href="style/style.css" rel="stylesheet" />
 		<title>Movie Time</title>
-		<style>
-			body {
-				overflow-x: hidden !important;
-				overflow-y: hidden !important;
-			}
-
-			.drag {
-				-webkit-app-region: drag;
-				/* cursor: move; */
-			}
-
-			.no_drag {
-				-webkit-app-region: no-drag;
-			}
-
-			#header {
-				position: relative;
-				z-index: 1;
-				background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
-				background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
-				background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
-				filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00ffffff',GradientType=0 );
-			}
-
-			.progress_bar {
-				position: relative;
-				margin: 11px 20px;
-				margin-right: 10px;
-				width: 200px;
-				height: 6px;
-				background: rgba(33, 33, 33, 0.67);
-				box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
-				border-radius: 100px;
-			}
-
-			.progress_bar div {
-				height: 100%;
-				background: #56ff00;
-				border-radius: 100px;
-			}
-
-			.content {
-				width: 100%;
-				height: 100vh;
-				position: relative;
-				overflow: hidden;
-
-				/* overflow: scroll; */
-			}
-
-			.video-container {
-				position: fixed;
-				width: 100%;
-				height: 100%;
-				background: black;
-				top: 0;
-				left: 0;
-				bottom: 107px;
-				overflow: hidden;
-			}
-
-			#videoPlayer {
-				position: fixed;
-				height: 100%;
-				width: 100%;
-				top: 0;
-				outline: none;
-				border: none;
-				object-fit: cover;
-			}
-
-			.video-container .subtitles {
-				position: fixed;
-				max-width: 800px;
-				padding: 10px 20px;
-				bottom: 77px;
-				line-height: 50px;
-				background: rgba(0, 0, 0, 0.6);
-			}
-
-			#menu {
-				position: fixed;
-				width: 100%;
-				max-width: 350px;
-				top: 80px;
-				bottom: 80px;
-				left: 10px;
-				background: rgba(0, 0, 0, 0.8);
-				border-radius: 10px;
-			}
-
-			#menu .menu_tabs {
-				border-bottom: 1px solid rgba(255, 255, 255, 0.15);
-			}
-
-			#menu .menu_tabs .active {
-				border-bottom: 1px solid white;
-			}
-
-			#menu .menu_container {
-				position: absolute;
-				overflow: auto;
-				width: 100%;
-				right: 0px;
-				top: 40px;
-				bottom: 0;
-				padding: 10px;
-			}
-
-			#menu .menu_container .playlist p {
-				/* padding: 5px 3px; */
-				overflow: hidden;
-				white-space: nowrap;
-				text-overflow: ellipsis;
-			}
-
-			#menu .menu_footer {
-				position: absolute;
-				bottom: 0;
-				border-top: 1px solid rgba(255, 255, 255, 0.15);
-				width: 92%;
-			}
-
-			#menu .close_button {
-				position: absolute;
-				right: -30px;
-				background: rgba(0, 0, 0, 0.8);
-				box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.8);
-				border-radius: 1px;
-			}
-
-			.avatar_img {
-				width: 80px;
-				height: 80px;
-				margin-bottom: 20px;
-				object-fit: cover;
-			}
-
-			hr {
-				border-top: none;
-				border-left: 5px solid rgba(0, 0, 0, 0);
-				border-right: 5px solid rgba(0, 0, 0, 0);
-				border-bottom: 1px solid rgba(132, 132, 132, 0.3);
-			}
-
-			#menu .chat {
-				position: relative;
-				height: 100%;
-			}
-
-			#menu .chat .chat_list {
-				position: absolute;
-				overflow-x: hidden;
-				overflow-y: auto;
-				width: 100%;
-				top: 0;
-				bottom: 70px;
-				padding: 10px;
-				border-bottom-left-radius: 5px;
-				border-bottom-right-radius: 5px;
-			}
-
-			#menu .chat .chat_item {
-				display: flex;
-				padding-top: 10px;
-				padding-bottom: 10px;
-				border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-			}
-
-			#menu .chat .chat_item.me {
-				flex-direction: row-reverse;
-				text-align: right;
-			}
-
-			#menu .chat .chat_item img {
-				margin: 10px;
-				width: 40px;
-				height: 40px;
-				object-fit: cover;
-				border-radius: 5px;
-			}
-
-			#menu .chat .chat_item .text_content {
-				margin-top: 13px;
-			}
-
-			#menu .chat .chat_input {
-				position: absolute;
-				bottom: 0;
-				width: 100%;
-				height: 60px;
-				background: rgba(255, 255, 255, 0.11);
-				border: none;
-				outline: none;
-				color: white;
-				padding: 4px 8px;
-				resize: none;
-				border-radius: 5px;
-				overflow: hidden;
-			}
-		</style>
 	</head>
 	<body class="noselect">
 		<div id="serverApp">
@@ -219,7 +18,7 @@
 						<p class="no_drag">
 							<span class="text_white link hover_active ml-1" @click="menuSelect('settings')" title="settings"></span>
 							<span class="text_white link hover_active ml-1" @click="menuSelect('playlist')" title="playlist"></span>
-							<span class="text_white link hover_active ml-1" @click="menuSelect('chat')" title="chat"></span>
+							<span :class="`text_white link hover_active ml-1  ${newMessageAlert ? 'alertDot' : ''}`" @click="menuSelect('chat')" title="chat"></span>
 							<span class="text_white ml-1 text_small text_gray" :title="`${spectators} spectators`"> {{spectators}}</span>
 						</p>
 						<div class="flex_wrap" v-if="uploadProgress && uploadProgress < 100">
@@ -246,16 +45,16 @@
 					<video type="video/mp4" src="" id="videoPlayer" controls poster="" @click="playerClick()" @play="playerPlay()" @pause="playerPause()" @stop="playerStop()"></video>
 
 					<div v-if="subtitles" class="flex_center_horizontal">
-						<div class="subtitles text_white text_bold text_big text_center inline_block">{{subtitles}}</div>
+						<div class="subtitles text_white text_bold text_center inline_block" v-html="subtitles"></div>
 					</div>
 				</div>
 
 				<div id="menu" v-if="menu" class="ph-05 pv-05">
 					<div class="close_button text_white link hover_active" @click="menuSelect(false)"></div>
 					<div class="menu_tabs text_small flex_space_between mb-1">
-						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'settings' ? 'active' : ''}`" @click="menuSelect('settings')"> settings</p>
-						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'playlist' ? 'active' : ''}`" @click="menuSelect('playlist')"> playlist</p>
-						<p :class="`text_white hover_active ph-05 pb-05 ${menu == 'chat' ? 'active' : ''}`" @click="menuSelect('chat')"> chat</p>
+						<p :class="`text_white hover_active link ph-05 pb-05 ${menu == 'settings' ? 'active' : ''}`" @click="menuSelect('settings')"> settings</p>
+						<p :class="`text_white hover_active link ph-05 pb-05 ${menu == 'playlist' ? 'active' : ''}`" @click="menuSelect('playlist')"> playlist</p>
+						<p :class="`text_white hover_active link ph-05 pb-05 ${menu == 'chat' ? 'active' : ''}`" @click="menuSelect('chat')"> chat</p>
 					</div>
 					<div class="menu_container text_small">
 						<!-- ------ settings ------- -->
@@ -269,7 +68,7 @@
 
 							<div class="text_white pb-05 flex_space_between flex_center_vertical">
 								<p class="text_white pr-1">User name</p>
-								<input type="text" class="p-05" :value="appInfo.username" @blur="changeSettings('username')" />
+								<input type="text" class="p-05" :value="appInfo.username" @keyup="changeSettings('username')" />
 							</div>
 
 							<hr class="mv-1" />
@@ -277,8 +76,8 @@
 							<div class="text_white pb-05 flex_space_between flex_center_vertical">
 								<p class="text_white pr-1">Ports <span class="text_white" title="You have to do port-forwarding to this two ports at your router"></span></p>
 								<div class="flex_space_between" style="width: 59%;">
-									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.serverPort" @blur="changeSettings('serverPort')" />
-									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.socketPort" @blur="changeSettings('socketPort')" />
+									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.serverPort" @keyup="changeSettings('serverPort')" />
+									<input type="text" class="p-05" style="width: 48%;" :value="appInfo.socketPort" @keyup="changeSettings('socketPort')" />
 								</div>
 							</div>
 						</div>
@@ -325,7 +124,9 @@
 				data() {
 					return {
 						chat: [],
-						menu: "settings",
+						newMessageAlert: false,
+						messageSound: new Audio(`misc/notification_sound.mp3`),
+						menu: null,
 						appInfo: {},
 						serverURL: "",
 						socket: {},
@@ -377,7 +178,7 @@
 				methods: {
 					socketMSG(socketData) {
 						var e = JSON.parse(socketData.data);
-						console.log(e);
+						// console.log(e);
 						this.spectators = e.spectators;
 						if (e.about == "initMe") {
 							this.socket.send(JSON.stringify({ msg: { ...this.appInfo, chat: this.chat }, about: "initMe" }));
@@ -392,6 +193,8 @@
 							}
 						} else if (e.about == "chat") {
 							this.chat.push(e.msg);
+							this.messageSound.play();
+							if (this.menu !== "menu") this.newMessageAlert = true;
 						}
 					},
 
@@ -418,11 +221,11 @@
 						el.classList.add("background_success");
 						setTimeout(() => el.classList.remove("background_success"), 1000);
 					},
-
 					subManager() {
+						this.tempSubs = {};
 						if (!fs.existsSync(this.playlist[this.appInfo.fileName].sub)) return;
 						var sub = fs.readFileSync(this.playlist[this.appInfo.fileName].sub, "UTF-8").split(/\n\n|\n\r/g);
-						var temp = {};
+
 						sub.forEach((e) => {
 							e = e.split("\n");
 							if (e[0] == "") e.splice(0, 1);
@@ -431,26 +234,30 @@
 							var tst = timeHelper(e[0]);
 							if (!tst) return;
 							e.shift();
-							temp[tst.start] = {};
-							temp[tst.start].end = tst.end;
-							temp[tst.start].text = e.join(" ");
+							this.tempSubs[tst.start] = {};
+							this.tempSubs[tst.start].end = tst.end;
+							this.tempSubs[tst.start].text = e.join(" ");
+							// temp[tst.start].text = e.join(" ").replace(/<i>|<\/i>/g, "");
 						});
-						console.log(temp);
+						// console.log(temp);
 
-						var subKeys = Object.keys(temp);
+						var subKeys = Object.keys(this.tempSubs);
 						var deltaTime = null;
-						setInterval(() => {
+						var subTick = setInterval(() => {
 							var videoTime = Math.round(this.videoPlayer.currentTime * 1000);
 							var closest = subKeys.reduce(function (prev, curr) {
 								return Number(Math.abs(curr - videoTime) < Math.abs(prev - videoTime) ? curr : prev);
 							});
 
 							if (deltaTime !== closest) {
+								if (!this.tempSubs[closest]) return clearInterval(subTick);
+								clearTimeout(t);
 								deltaTime = closest;
-								this.subtitles = temp[closest].text;
-								setTimeout(() => {
+								this.subtitles = this.tempSubs[closest].text;
+								this.socket.send(JSON.stringify({ about: "subtitles", msg: this.tempSubs[closest] }));
+								var t = setTimeout(() => {
 									this.subtitles = null;
-								}, temp[closest].end);
+								}, this.tempSubs[closest].end + 2000 - videoTime);
 							}
 						}, 500);
 
@@ -513,6 +320,7 @@
 					},
 					menuSelect(menuItem) {
 						this.menu = menuItem;
+						if (menuItem == "chat") this.newMessageAlert = false;
 					},
 					addToPlaylist(listItem) {
 						if (this.appInfo.playlist[listItem.fileName]) return;

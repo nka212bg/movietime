@@ -15,6 +15,227 @@
 	--happygreen: #99ffea;
 }
 
+/* ----------------------------------------------- */
+
+body {
+	overflow-x: hidden !important;
+	overflow-y: hidden !important;
+}
+
+.drag {
+	-webkit-app-region: drag;
+	/* cursor: move; */
+}
+
+.no_drag {
+	-webkit-app-region: no-drag;
+}
+
+#header {
+	position: relative;
+	z-index: 1;
+	background: -moz-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+	background: -webkit-linear-gradient(top, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65) 0%, rgba(255, 255, 255, 0) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a6000000', endColorstr='#00ffffff',GradientType=0 );
+}
+
+.alertDot {
+	position: relative;
+}
+
+.alertDot::before {
+	content: "";
+	position: absolute;
+	left: -3px;
+	top: -3px;
+	width: 6px;
+	height: 6px;
+	background: red;
+	border-radius: 10px;
+	border: 2px solid white;
+}
+
+.progress_bar {
+	position: relative;
+	margin: 11px 20px;
+	margin-right: 10px;
+	width: 200px;
+	height: 6px;
+	background: rgba(33, 33, 33, 0.67);
+	box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
+	border-radius: 100px;
+}
+
+.progress_bar div {
+	height: 100%;
+	background: #56ff00;
+	border-radius: 100px;
+}
+
+.content {
+	width: 100%;
+	height: 100vh;
+	position: relative;
+	overflow: hidden;
+
+	/* overflow: scroll; */
+}
+
+.video-container {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	background: black;
+	top: 0;
+	left: 0;
+	bottom: 107px;
+	overflow: hidden;
+}
+
+#videoPlayer {
+	position: fixed;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	outline: none;
+	border: none;
+	object-fit: cover;
+}
+
+.video-container .subtitles {
+	position: fixed;
+	font-size: 1.5em;
+	max-width: 800px;
+	padding: 10px 20px;
+	bottom: 77px;
+	line-height: 50px;
+	background: rgba(0, 0, 0, 0.6);
+}
+
+#menu {
+	position: fixed;
+	width: 100%;
+	max-width: 350px;
+	top: 80px;
+	bottom: 80px;
+	left: 10px;
+	background: rgba(0, 0, 0, 0.8);
+	border-radius: 10px;
+}
+
+#menu .menu_tabs {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+#menu .menu_tabs .active {
+	border-bottom: 1px solid white;
+}
+
+#menu .menu_container {
+	position: absolute;
+	overflow: auto;
+	width: 100%;
+	right: 0px;
+	top: 40px;
+	bottom: 0;
+	padding: 10px;
+}
+
+#menu .menu_container .playlist p {
+	/* padding: 5px 3px; */
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+#menu .menu_footer {
+	position: absolute;
+	bottom: 0;
+	border-top: 1px solid rgba(255, 255, 255, 0.15);
+	width: 92%;
+}
+
+#menu .close_button {
+	position: absolute;
+	right: -30px;
+	background: rgba(0, 0, 0, 0.8);
+	box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.8);
+	border-radius: 1px;
+}
+
+.avatar_img {
+	width: 80px;
+	height: 80px;
+	margin-bottom: 20px;
+	object-fit: cover;
+}
+
+hr {
+	border-top: none;
+	border-left: 5px solid rgba(0, 0, 0, 0);
+	border-right: 5px solid rgba(0, 0, 0, 0);
+	border-bottom: 1px solid rgba(132, 132, 132, 0.3);
+}
+
+#menu .chat {
+	position: relative;
+	height: 100%;
+}
+
+#menu .chat .chat_list {
+	position: absolute;
+	overflow-x: hidden;
+	overflow-y: auto;
+	width: 100%;
+	top: 0;
+	bottom: 70px;
+	padding: 10px;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+#menu .chat .chat_item {
+	display: flex;
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+#menu .chat .chat_item.me {
+	flex-direction: row-reverse;
+	text-align: right;
+}
+
+#menu .chat .chat_item img {
+	margin: 10px;
+	width: 40px;
+	height: 40px;
+	object-fit: cover;
+	border-radius: 5px;
+}
+
+#menu .chat .chat_item .text_content {
+	margin-top: 13px;
+}
+
+#menu .chat .chat_input {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 60px;
+	background: rgba(255, 255, 255, 0.11);
+	border: none;
+	outline: none;
+	color: white;
+	padding: 4px 8px;
+	resize: none;
+	border-radius: 5px;
+	overflow: hidden;
+}
+
+/* ----------------------------------------------- */
+
 *,
 html {
 	font-family: icon, "Roboto", sans-serif;
