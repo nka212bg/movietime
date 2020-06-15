@@ -202,6 +202,10 @@ hr {
 	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+#menu .chat .chat_item:last-child {
+	margin-bottom: 80px;
+}
+
 #menu .chat .chat_item.me {
 	flex-direction: row-reverse;
 	text-align: right;

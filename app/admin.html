@@ -194,7 +194,9 @@
 						} else if (e.about == "chat") {
 							this.chat.push(e.msg);
 							this.messageSound.play();
-							if (this.menu !== "menu") this.newMessageAlert = true;
+							var chatList = document.querySelector(".chat_list");
+							if (chatList) chatList.scrollTop = chatList.scrollHeight;
+							if (this.menu !== "chat") this.newMessageAlert = true;
 						}
 					},
 

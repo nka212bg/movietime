@@ -18,7 +18,7 @@ function createWindow() {
 		y: winState.y,
 		width: winState.width,
 		height: winState.height,
-		minWidth: 1200,
+		minWidth: 1200, 
 		minHeight: 700,
 		frame: false,
 		backgroundColor: "#3a3a44",
