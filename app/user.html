@@ -49,9 +49,7 @@
 							<hr class="mv-1" />
 
 							<div class="text_white pb-05 flex_space_between flex_center_vertical">
-								<p class="text_white pr-1">Show subtitles</p>
-								{{appInfo.showSubtitles}}
-								<input class="p-05" v-model="appInfo.showSubtitles" type="checkbox" @change="changeSettings('showSubtitles')" />
+								<p class="text_white link pr-1" @click="changeSettings('showSubtitles')">{{appInfo.showSubtitles === 'on' ? 'Hide subtitles' : 'Show subtitles'}}</p>
 							</div>
 						</div>
 
@@ -101,9 +99,9 @@
 					this.appInfo = {
 						username: localStorage.username ? localStorage.username : (localStorage.username = "Spectator"),
 						avatar: localStorage.avatar ? localStorage.avatar : (localStorage.avatar = 1),
-						showSubtitles: localStorage.showSubtitles ? localStorage.showSubtitles : (localStorage.showSubtitles = true),
+						showSubtitles: localStorage.showSubtitles ? localStorage.showSubtitles : (localStorage.showSubtitles = "on"),
 					};
-					console.log(this.appInfo.showSubtitles);
+					// console.log(this.appInfo.showSubtitles);
 					setInterval(() => {
 						if (!this.socket.readyState || this.socket.readyState !== 1) {
 							console.log("websocket is closed! opening ....");
@@ -135,7 +133,7 @@
 						} else if (about == "password") {
 							this.appInfo[about] = Date.now();
 						} else if (about == "showSubtitles") {
-							this.appInfo[about] = event.target.checked;
+							this.appInfo[about] = this.appInfo[about] === "on" ? "off" : "on";
 						} else {
 							this.appInfo[about] = event.target.value.replace(/ /g, "_");
 						}
@@ -167,7 +165,7 @@
 					},
 					socketMSG(socketData) {
 						var e = JSON.parse(socketData.data);
-						console.log(e);
+						// console.log(e);
 						if (e.about == "initMe") {
 							this.headers = e.msg;
 							this.fileURL = e.msg.fileURL;
@@ -195,6 +193,7 @@
 							if (chatList) chatList.scrollTop = chatList.scrollHeight;
 							if (this.menu !== "chat") this.newMessageAlert = true;
 						} else if (e.about == "subtitles") {
+							if (this.appInfo.showSubtitles !== "on") return;
 							clearTimeout(t);
 							this.subtitles = e.msg.text;
 							var t = setTimeout(() => {

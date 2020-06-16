@@ -18,10 +18,11 @@ function createWindow() {
 		y: winState.y,
 		width: winState.width,
 		height: winState.height,
-		minWidth: 1200, 
+		minWidth: 1200,
 		minHeight: 700,
 		frame: false,
 		backgroundColor: "#3a3a44",
+		icon: appRoot + `\\img\\avatars\\3.jpg`,
 		webPreferences: {
 			nodeIntegration: true,
 			preload: appRoot + "/script/preload.js",
@@ -30,7 +31,7 @@ function createWindow() {
 	winState.manage(mainWindow);
 	mainWindow.loadFile("app/admin.html");
 	global.webContent = mainWindow.webContents;
-	webContent.openDevTools();
+	// webContent.openDevTools();
 }
 
 app.on("activate", function () {

@@ -54,6 +54,13 @@ body {
 	background: red;
 	border-radius: 10px;
 	border: 2px solid white;
+	animation: blinker 2s cubic-bezier(1, 0.02, 0, -0.15) infinite;
+}
+
+@keyframes blinker {
+	50% {
+		opacity: 0;
+	}
 }
 
 .progress_bar {
@@ -121,7 +128,7 @@ body {
 	bottom: 80px;
 	left: 10px;
 	background: rgba(0, 0, 0, 0.8);
-	border-radius: 10px;
+	/* border-radius: 10px; */
 }
 
 #menu .menu_tabs {
@@ -161,7 +168,7 @@ body {
 	right: -30px;
 	background: rgba(0, 0, 0, 0.8);
 	box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.8);
-	border-radius: 1px;
+	/* border-radius: 1px; */
 }
 
 .avatar_img {
