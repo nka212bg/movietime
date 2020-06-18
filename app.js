@@ -1,4 +1,5 @@
 "use strict";
+//electron-builder
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { exec } = require("child_process");
 const windowStateKeeper = require("electron-window-state");
