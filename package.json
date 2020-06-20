@@ -7,7 +7,8 @@
 	"main": "app.js",
 	"scripts": {
 		"start": "electron .",
-		"watch": "nodemon --exec electron ."
+		"watch": "nodemon --exec electron .",
+		"build": "electron-builder"
 	},
 	"devDependencies": {
 		"electron": "^9.0.0",
@@ -18,5 +19,14 @@
 		"fluent-ffmpeg": "^2.1.2",
 		"electron-window-state": "^5.0.3",
 		"ws": "^7.3.0"
+	},
+	"build": {
+		"appId": "com.movietime.app",
+		"copyright": "2020 movietime.com",
+		"asar": true,
+		"asarUnpack": "app.asar.unpacked/**/*",
+		"win": {},
+		"mac": {},
+		"linux": {}
 	}
 }

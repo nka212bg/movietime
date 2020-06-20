@@ -139,6 +139,7 @@
 				},
 				mounted() {
 					this.videoPlayer = document.getElementById("videoPlayer");
+					this.videoPlayer.volume = 0.05;
 					fetch("https://api.myip.com/")
 						.then((e) => e.json())
 						.then((e) => {

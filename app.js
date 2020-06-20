@@ -1,7 +1,7 @@
 "use strict";
-//electron-builder
+// electron-builder
+// electron-builder --win portable
 const { app, BrowserWindow, ipcMain } = require("electron");
-const { exec } = require("child_process");
 const windowStateKeeper = require("electron-window-state");
 const http = require("http");
 const fs = require("fs");
@@ -15,7 +15,7 @@ function createWindow() {
 		defaultHeight: 700,
 	});
 	const mainWindow = new BrowserWindow({
-		x: winState.x,
+		x: winState.x, 
 		y: winState.y,
 		width: winState.width,
 		height: winState.height,
@@ -23,7 +23,6 @@ function createWindow() {
 		minHeight: 700,
 		frame: false,
 		backgroundColor: "#3a3a44",
-		icon: appRoot + `\\img\\avatars\\3.jpg`,
 		webPreferences: {
 			nodeIntegration: true,
 			preload: appRoot + "/script/preload.js",
@@ -49,7 +48,7 @@ app.whenReady().then(() => {
 
 	ipcMain.on("init", (e, args) => {
 		localStorage = args;
-
+		
 		// ------------------ web socket ----------------------
 		webContent.ws = new WebSocketServer({ port: localStorage.socketPort }).on("connection", (ws) => {
 			ws.onmessage = (e) => {

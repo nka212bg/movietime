@@ -96,6 +96,7 @@
 				},
 				mounted() {
 					this.videoPlayer = document.getElementById("videoPlayer");
+					this.videoPlayer.volume = 0.05;
 					this.appInfo = {
 						username: localStorage.username ? localStorage.username : (localStorage.username = "Spectator"),
 						avatar: localStorage.avatar ? localStorage.avatar : (localStorage.avatar = 1),
