@@ -1,4 +1,4 @@
-# movietime
+#MovieTime
 Video player for group remote movie watching
 
 MovieTime v0.1.0 is a very nice looking media player for Windows. The difference and innovation about it is that the player creates an HTTP web server and streams the played video to anybody that has the appropriate URL address to it. supports subtitles and streams it to the spectators too. all the spectators, including the host have the ability to play/pause and change the position of the video. The player also provides a chat with notifications, customizable avatars and spectators names.
