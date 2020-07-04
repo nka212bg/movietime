@@ -1,32 +1,41 @@
 {
-	"name": "movietime",
+	"name": "movie_time",
 	"version": "0.1.0",
-	"description": "An app for watching movies with friends.",
-	"author": "NKA",
+	"description": "ideo player for group remote movie watching",
+	"author": "N.K.Atanasov",
 	"license": "MIT",
 	"main": "app.js",
 	"scripts": {
 		"start": "electron .",
 		"watch": "nodemon --exec electron .",
-		"build": "electron-builder"
+		"build": "electron-builder",
+		"cert": "electron-builder create-self-signed-cert -p N.K.Atanasov"
 	},
 	"devDependencies": {
 		"electron": "^9.0.0",
+		"electron-builder-squirrel-windows": "^22.7.0",
 		"nodemon": "^1.18.9"
 	},
 	"dependencies": {
 		"@ffmpeg-installer/ffmpeg": "^1.0.20",
-		"fluent-ffmpeg": "^2.1.2",
 		"electron-window-state": "^5.0.3",
+		"fluent-ffmpeg": "^2.1.2",
 		"ws": "^7.3.0"
 	},
 	"build": {
-		"appId": "com.movietime.app",
-		"copyright": "2020 movietime.com",
-		"asar": true,
-		"asarUnpack": "app.asar.unpacked/**/*",
-		"win": {},
-		"mac": {},
+		"appId": "com.movie_time.app",
+		"copyright": "2020 movie_time.com",
+		"asar": false,
+		"asarUnpack": [
+			"**/app/node_modules/*"
+		],
+		"win": {
+			"target": "portable",
+			"publisherName": "N.K.Atanasov"
+		},
+		"mac": {
+			"target": "dmg"
+		},
 		"linux": {}
 	}
 }

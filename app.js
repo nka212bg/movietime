@@ -22,7 +22,7 @@ function createWindow() {
 		minWidth: 1200,
 		minHeight: 700,
 		frame: false,
-		backgroundColor: "#3a3a44",
+		backgroundColor: "#3a3a44", 
 		webPreferences: {
 			nodeIntegration: true,
 			preload: appRoot + "/script/preload.js",
