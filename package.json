@@ -1,7 +1,7 @@
 {
 	"name": "movie_time",
 	"version": "0.1.0",
-	"description": "ideo player for group remote movie watching",
+	"description": "Video player for group remote movie watching",
 	"author": "N.K.Atanasov",
 	"license": "MIT",
 	"main": "app.js",
