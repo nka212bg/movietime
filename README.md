@@ -11,6 +11,6 @@ In the left top corner of the player is located the settings icon. The two ports
 
 I wish you happy watching with friends :)))
 <br><br>
-<img src="https://www.nkatanasov.ca/wp-content/uploads/2020/07/player_preview.png">
+<img src="https://www.nkatanasov.ca/wp-content/uploads/2021/02/player_preview-1024x631.png">
 
 
